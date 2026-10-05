@@ -1,0 +1,20 @@
+body {
+	 background-color: #d7c0ff;
+	 font-family: Arial;
+	 font-size: 12pt;
+	 margin: 0px;
+	 padding: 0px;
+     }
+
+.cabecalho 
+{
+    background: #9500ff;
+	background: radial-gradient(circle, rgba(149, 0, 255, 1) 10%, rgba(88, 41, 217, 1)55%);
+    padding: 15px;
+    text-align: center;
+    font-family: "Times New Roman", Times, serif;
+	font-size: 1.5vw;
+	color: white;
+	border-color: red;
+	text-shadow: 2px 2px 5px black;
+}
