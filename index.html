@@ -1,17 +1,155 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <html>
-    <head>
-      <meta charset="UTF-8" />
-  		<title>Calibração de Bebidas</title>
-  		<link rel="stylesheet" type="text/css" href="css/cssGeral.css" />
-    </head>
 
-<body>
-    <div class="cabecalho">
-        <h1>Projeto aurora</h1>
+  <head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Projeto Aurora - Calibração de Bebidas</title>
+
+    <!-- Esse link importa as classes do bulma css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="css/geral.css">
+
+    <!-- link de importação do Socket.IO-->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <!-- Javascript -->
+    <script src="script.js" defer></script>
+
+  </head>
+
+  <body>
+
+    <!-- Cabeçalho-->
+    <header class="cabecalho hero">
+
+      <div class="hero-body has-text-centered">
+
+        <h1 class="title is-2">Projeto Aurora</h1>
+        <p class="subtitle is-5">Analizar Bebidas</p>
+
+      </div>
+
+    </header>
+
+    <!-- Conteudo principal -->
+
+    <main class="section">
+
+    <div class="container has-text-centered mb-5">
+        <a href="historico.html" class="button is-link is-light">Consultar histórico de análises</a>
     </div>
-</body>
 
-  </html>
-  
+    <div class="container">
+
+        <!-- Leitura atual -->
+            <section class="leitura box">
+
+                <h2 class="title is-4">Leitura Atual</h2>
+
+                <p id="tipoLeitura" class="subtitle is-6">Aguardando leitura</p>
+
+                  <div class="valores columns is-mobile is-multiline">
+
+                      <div class="valor column is-6-mobile is-3-tablet">
+
+                          <div class="box has-text-centered">
+
+                              <h3 class="title is-5">R</h3>
+                              <p class="subtitle is-4"><span id="valorR">---</span></p>
+
+                          </div>
+
+                      </div>
+
+                      <div class="valor column is-6-mobile is-3-tablet">
+
+                          <div class="box has-text-centered">
+
+                              <h3 class="title is-5">G</h3>
+                              <p class="subtitle is-4"><span id="valorG">---</span></p>
+                          </div>
+
+                      </div>
+
+                      <div class="valor column is-6-mobile is-3-tablet">
+
+                          <div class="box has-text-centered">
+
+                              <h3 class="title is-5">B</h3>
+                              <p class="subtitle is-4"><span id="valorB">---</span></p>
+
+                          </div>
+
+                      </div>
+
+                      <div class="valor column is-6-mobile is-3-tablet">
+
+                          <div class="box has-text-centered">
+
+                              <h3 class="title is-5">C</h3>
+                              <p class="subtitle is-4"><span id="valorC">---</span></p>
+                            
+                            </div>
+
+                      </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Resultado -->
+            <section class="resultado box">
+
+                <h2 class="title is-4">Resultados</h2>
+
+                <p id="status" class="subtitle is-5">Aguardando Análise</p>
+
+                <p id="diferenca"></p>
+
+            </section>
+
+            <!-- Grafico -->
+             <section class="grafico box">
+
+                <h2 class="title is-4">Comparação</h2>
+
+                <p class="subtitle is-6">Comparando os valores recebidos com os valores de referência.</p>
+
+                <div class="grafico-conteudo">
+                    
+                    <p id="graficoVazio">Aguardando dados para gerar o gráfico</p>
+
+                    <canvas id="grafico" hidden></canvas>
+
+                </div>
+
+            </section>
+
+            <!-- Substancia analisada -->
+
+            <section class="substancia box">
+
+                <h2 class="title is-4">Substância Analisada</h2>
+                <p id="nomeSubstancia">Nenhuma substância selecionada</p>
+
+            </section>
+      </div>
+    </main>
+  </body>
+</html>
+
+<!--
+Coloca no terminal esses comandos de baixo: 
+    npm init -y
+    npm install express socket.io sqlite3
+
+Cria o arquivo package.json e aceita a configuração padrão do Node.
+Instala três bibliotecas:
+    express: cria uma estrutura básica do sistema.
+    socket.io: permite atualização em tempo real entre o servidor e a página.
+    sqlite3: banco de dados relacional leve, que guarda as informações.
+-->

@@ -1,0 +1,200 @@
+/* Configurações gerais do site */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body,
+button,
+input,
+textarea,
+select {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+body {
+    background-color: #E8EEF7;
+    font-family: Neuton, serif;
+    font-size: 12pt;
+    color: #101D35;
+    min-height: 100vh;
+}
+
+
+
+/* Cabeçalho */
+
+.cabecalho {
+    background: linear-gradient(135deg, #101D35, #233b61);
+    padding: 25px 15px;
+    text-align: center;
+    color: white;
+    border-bottom: 3px solid #4385D6;
+    box-shadow: 0 3px 10px rgba(16, 29, 53, 0.2);
+}
+
+.cabecalho .title {
+    color: white;
+}
+
+.cabecalho .subtitle {
+    color: #A9C7EE;
+}
+
+
+/* Leitura atual */
+
+.leitura {
+    background-color: white;
+    border: 1px solid #D5DFED;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(16, 29, 53, 0.08);
+    text-align: center;
+}
+
+.leitura h2 {
+    color: #101D35;
+}
+
+#tipoLeitura {
+    color: #64748B;
+}
+
+.valores .box {
+    background-color: #F2F6FC;
+    border: 1px solid #D5DFED;
+    border-radius: 12px;
+    height: 100%;
+    box-shadow: none;
+    transition: 0.3s;
+}
+
+.valores .box:hover {
+    border-color: #4385D6;
+    transform: translateY(-3px);
+}
+
+.valor h3 {
+    color: #4385D6;
+}
+
+.valor p {
+    color: #101D35;
+}
+
+
+/* Resultados */
+
+.resultado {
+    background-color: #FFFFFF;
+    border: 1px solid #D5DFED;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(16, 29, 53, 0.08);
+}
+
+.resultado h2 {
+    color: #101D35;
+}
+
+#status {
+    color: #4385D6;
+    font-weight: bold;
+}
+
+#diferenca {
+    color: #64748B;
+    margin-top: 10px;
+}
+
+.status-ok {
+    color: #218838 !important;
+}
+
+.status-alerta {
+    color: #C0392B !important;
+}
+
+
+/* Gráfico */
+
+.grafico {
+    background-color: white;
+    border: 1px solid #D5DFED;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(16, 29, 53, 0.08);
+}
+
+.grafico h2 {
+    color: #101D35;
+}
+
+.grafico .subtitle {
+    color: #64748B;
+}
+
+.grafico-conteudo {
+    background-color: #F2F6FC;
+    border: 1px dashed #4385D6;
+    border-radius: 12px;
+    min-height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #64748B;
+}
+
+#grafico {
+    width: 100%;
+    height: 250px;
+}
+
+
+/* Substância analisada */
+
+.substancia {
+    background-color: #FFFFFF;
+    border: 1px solid #D5DFED;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(16, 29, 53, 0.08);
+}
+
+.substancia h2 {
+    color: #101D35;
+}
+
+#nomeSubstancia {
+    color: #1C3152;
+}
+
+/* Responsividade */
+
+@media screen and (max-width: 480px) {
+
+    .cabecalho {
+        padding: 15px 10px;
+    }
+
+    .section {
+        padding: 20px 12px;
+    }
+
+    .leitura,
+    .resultado,
+    .grafico,
+    .substancia {
+        padding: 15px;
+    }
+
+    .grafico-conteudo {
+        min-height: 220px;
+        padding: 8px;
+    }
+
+    #grafico {
+        height: 220px;
+    }
+
+}

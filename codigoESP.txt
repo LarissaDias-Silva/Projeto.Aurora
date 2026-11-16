@@ -1,0 +1,397 @@
+#include <Wire.h>
+#include "Adafruit_TCS34725.h"
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+#define SDA_PIN 21
+#define SCL_PIN 22
+#define PINO_LED1 4
+#define PINO_LED2 2
+
+const char* WIFI_SSID = "bota_o_nome_da_rede_de_internet";
+const char* WIFI_SENHA = "bota_a_senha_da_rede";
+
+const char* SERVIDOR = "endereco_servidor_do_notebook";
+
+Adafruit_TCS34725 sensor(
+  TCS34725_INTEGRATIONTIME_154MS,
+  TCS34725_GAIN_4X
+);
+
+Adafruit_SSD1306 tela(128, 64, &Wire, -1);
+
+float refR, refG, refB, refC;
+
+void setup() {
+  Serial.begin(9600);
+  delay(2000);
+
+  conectarWiFi();
+
+  pinMode(PINO_LED1, OUTPUT);
+  digitalWrite(PINO_LED1, HIGH);
+
+  pinMode(PINO_LED2, OUTPUT);
+  digitalWrite(PINO_LED2, HIGH);
+
+  Wire.begin(SDA_PIN, SCL_PIN);
+  delay(200);
+
+  if (!sensor.begin()) {
+    Serial.println("ERRO TCS!");
+    while (true);
+  }
+
+  if (!tela.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("ERRO OLED!");
+    while (true);
+  }
+
+  tela.ssd1306_command(SSD1306_DISPLAYOFF);
+
+  Serial.println("TCS OK!");
+  Serial.println("OLED OK!");
+}
+
+void loop() {
+  bool repetir = true;
+
+  while (repetir) {
+    tela.ssd1306_command(SSD1306_DISPLAYOFF);
+    delay(300);
+
+    if (!calibrar()) {
+      Serial.println("Falha na calibracao.");
+      Serial.println("Tente novamente? S/N");
+      if (!lerResposta()) {
+        repetir = false;
+      } else {
+        reiniciarDispositivos();
+      }
+      continue;
+    }
+
+    Serial.println();
+    Serial.println("CALIBRACAO TERMINADA!");
+    Serial.println("Coloque a amostra.");
+    Serial.println("Aguarde 5 segundos.");
+
+    delay(5000);
+
+    testarAmostra();
+
+    Serial.println();
+    Serial.println("==========================");
+    Serial.println("DESEJA CALIBRAR NOVAMENTE?");
+    Serial.println("Digite S para SIM");
+    Serial.println("Digite N para NAO");
+    Serial.println("==========================");
+
+    repetir = lerResposta();
+
+    if (repetir) {
+      Serial.println("Reiniciando OLED, I2C e sensor...");
+      if (!reiniciarDispositivos()) {
+        Serial.println("Erro ao reiniciar os dispositivos.");
+        repetir = false;
+      } else {
+        Serial.println("Reinicializacao concluida!");
+        delay(500);
+      }
+    } else {
+      tela.ssd1306_command(SSD1306_DISPLAYOFF);
+      Serial.println("SISTEMA FINALIZADO.");
+    }
+  }
+
+  while (true) {
+    delay(1000);
+  }
+}
+
+bool lerResposta() {
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
+
+  while (Serial.available() == 0) {
+    delay(50);
+  }
+
+  char resposta = Serial.read();
+
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
+
+  return resposta == 'S' || resposta == 's';
+}
+
+bool reiniciarDispositivos() {
+  tela.ssd1306_command(SSD1306_DISPLAYOFF);
+  delay(200);
+
+  Wire.end();
+  delay(300);
+
+  Wire.begin(SDA_PIN, SCL_PIN);
+  delay(300);
+
+  if (!sensor.begin()) {
+    Serial.println("ERRO AO REINICIAR TCS!");
+    return false;
+  }
+
+  delay(200);
+
+  if (!tela.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println("ERRO AO REINICIAR OLED!");
+    return false;
+  }
+
+  tela.ssd1306_command(SSD1306_DISPLAYOFF);
+  delay(500);
+
+  return true;
+}
+
+bool calibrar() {
+  float somaR = 0;
+  float somaG = 0;
+  float somaB = 0;
+  float somaC = 0;
+
+  int validas = 0;
+
+  uint16_t r, g, b, c;
+
+  tela.ssd1306_command(SSD1306_DISPLAYOFF);
+
+  Serial.println();
+  Serial.println("===== CALIBRANDO =====");
+
+  for (int i = 0; i < 10; i++) {
+    delay(250);
+
+    sensor.getRawData(&r, &g, &b, &c);
+
+    Serial.print("Leitura ");
+    Serial.print(i + 1);
+    Serial.print(": R=");
+    Serial.print(r);
+    Serial.print(" G=");
+    Serial.print(g);
+    Serial.print(" B=");
+    Serial.print(b);
+    Serial.print(" C=");
+    Serial.println(c);
+
+    if (r > 0 && g > 0 && b > 0 && c > 0) {
+      somaR += r;
+      somaG += g;
+      somaB += b;
+      somaC += c;
+      validas++;
+    }
+  }
+
+  if (validas == 0) {
+    Serial.println("ERRO: todas as leituras foram zeradas!");
+    return false;
+  }
+
+  refR = somaR / validas;
+  refG = somaG / validas;
+  refB = somaB / validas;
+  refC = somaC / validas;
+
+  Serial.println();
+  Serial.println("===== REFERENCIA =====");
+
+  Serial.print("R: ");
+  Serial.println(refR);
+  Serial.print("G: ");
+  Serial.println(refG);
+  Serial.print("B: ");
+  Serial.println(refB);
+  Serial.print("C: ");
+  Serial.println(refC);
+
+  Serial.print("Leituras validas: ");
+  Serial.println(validas);
+
+  enviarDados("/api/calibracao", refR, refG, refB, refC);
+
+  return true;
+}
+
+void testarAmostra() {
+  uint16_t r, g, b, c;
+
+  tela.ssd1306_command(SSD1306_DISPLAYOFF);
+  delay(500);
+
+  Serial.println();
+  Serial.println("===== AMOSTRA =====");
+
+  sensor.getRawData(&r, &g, &b, &c);
+
+  Serial.print("R: ");
+  Serial.println(r);
+  Serial.print("G: ");
+  Serial.println(g);
+  Serial.print("B: ");
+  Serial.println(b);
+  Serial.print("C: ");
+  Serial.println(c);
+
+  if (r == 0 || g == 0 || b == 0 || c == 0) {
+    Serial.println("ERRO: AMOSTRA ZERADA!");
+
+    mostrarMensagem("ERRO!\n\nLeitura zerada");
+    return;
+  }
+  if (refR == 0 || refG == 0 || refB == 0 || refC == 0) {
+    Serial.println("ERRO: REFERENCIA INVALIDA!");
+
+    mostrarMensagem("ERRO!\n\nReferencia invalida");
+    return;
+}
+
+  float difR = abs(r - refR) / refR * 100.0;
+  float difG = abs(g - refG) / refG * 100.0;
+  float difB = abs(b - refB) / refB * 100.0;
+  float difC = abs(c - refC) / refC * 100.0;
+
+  float media = (difR + difG + difB + difC) / 4.0;
+
+  Serial.println();
+  Serial.print("Diferenca media: ");
+  Serial.print(media);
+  Serial.println("%");
+
+  tela.ssd1306_command(SSD1306_DISPLAYON);
+  tela.clearDisplay();
+  tela.setTextColor(SSD1306_WHITE);
+  tela.setTextSize(1);
+  tela.setCursor(0, 0);
+  tela.println("RESULTADO:");
+
+  tela.setTextSize(2);
+  tela.setCursor(0, 15);
+
+  if (media <= 10.0) {
+    Serial.println("RESULTADO: COMPATIVEL");
+    tela.println("COMPATIVEL");
+
+    enviarDados("/api/teste", r, g, b, c, "COMPATIVEL");
+
+  } else {
+    Serial.println("RESULTADO: SUSPEITA");
+    tela.println("SUSPEITA");
+
+    enviarDados("/api/teste", r, g, b, c, "SUSPEITA");
+  }
+
+  tela.setTextSize(1);
+  tela.setCursor(0, 40);
+  tela.print("R:");
+  tela.print(r);
+  tela.print(" G:");
+  tela.print(g);
+
+  tela.setCursor(0, 50);
+  tela.print("B:");
+  tela.print(b);
+  tela.print(" C:");
+  tela.print(c);
+
+  tela.display();
+}
+
+void mostrarMensagem(String mensagem) {
+  tela.ssd1306_command(SSD1306_DISPLAYON);
+  tela.clearDisplay();
+  tela.setTextColor(SSD1306_WHITE);
+  tela.setTextSize(1);
+  tela.setCursor(0, 0);
+  tela.println(mensagem);
+  tela.display();
+}
+
+//essa função serve para iniciar a conexão
+void conectarWiFi() {
+  Serial.println();
+  Serial.println("Conectando ao Wi-Fi...");
+
+  WiFi.begin(WIFI_SSID, WIFI_SENHA);
+
+  int tentativas = 0;
+
+  while (WiFi.status() != WL_CONNECTED && tentativas < 20) {
+    delay(500);
+    Serial.print(".");
+    tentativas++;
+  }
+
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("Wi-Fi conectado!");
+
+    Serial.print("IP do ESP32: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("ERRO: Nao foi possivel conectar ao Wi-Fi!");
+  }
+}
+
+// essa função serve para enviar os dados pro site 
+void enviarDados(String rota, float r, float g, float b, float c, String status = "") {
+
+  if (WiFi.status() == WL_CONNECTED) {
+
+    HTTPClient http;
+
+    String endereco = String(SERVIDOR) + rota;
+
+    http.begin(endereco);
+    http.addHeader("Content-Type", "application/json");
+
+    String dados = "{";
+    dados += "\"r\":" + String(r, 2) + ",";
+    dados += "\"g\":" + String(g, 2) + ",";
+    dados += "\"b\":" + String(b, 2) + ",";
+    dados += "\"c\":" + String(c, 2);
+
+    if (status != "") {
+      dados += ",\"status\":\"" + status + "\"";
+    }
+
+    dados += "}";
+
+    int resposta = http.POST(dados);
+
+    if (resposta > 0) {
+
+      Serial.print("Resposta do servidor: ");
+      Serial.println(resposta);
+      Serial.println(http.getString());
+
+    } else {
+
+      Serial.print("Erro no envio: ");
+      Serial.println(http.errorToString(resposta));
+
+    }
+
+    http.end();
+
+  } else {
+
+    Serial.println("Wi-Fi desconectado. Dados nao enviados.");
+
+  }
+}

@@ -1,0 +1,52 @@
+<!-- Este arquivo é so pra testar a conexão do site e tals, não serve de nada no site -->
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Simulador - Projeto Aurora</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+    <link rel="stylesheet" href="css/geral.css">
+</head>
+
+<body>
+    <header class="cabecalho hero">
+        <div class="hero-body has-text-centered">
+            <h1 class="title is-2">Projeto Aurora</h1>
+            <p class="subtitle is-5">Simulador de Leituras</p>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container has-text-centered">
+            <h2 class="title is-4">Testar comunicação com o servidor</h2>
+
+            <div class="buttons is-centered">
+                <button class="button is-link" id="calibrar">
+                    Enviar calibração
+                </button>
+
+                <button class="button is-success" id="compativel">
+                    Amostra compatível
+                </button>
+
+                <button class="button is-danger" id="suspeita">
+                    Amostra suspeita
+                </button>
+            </div>
+
+            <p id="mensagem">Aguardando teste...</p>
+
+            <p>
+                <a href="index.html">Voltar para a página principal</a>
+            </p>
+        </div>
+    </main>
+
+    <script src="simulador.js" defer></script>
+</body>
+</html>

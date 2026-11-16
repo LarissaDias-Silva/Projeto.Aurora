@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+    <html lang="pt-br">
+
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+            <title>Projeto Aurora - Histórico</title>
+
+            <!-- Importa o bulma e tals -->
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+            <link rel="stylesheet" href="css/geral.css">
+
+            <!-- Importa o javascript -->
+            <script src="historico.js" defer></script>
+        </head>
+
+        <body>
+
+            <header class="cabecalho hero">
+
+                <div class="hero-body has-text-centered">
+
+                    <h1 class="title is-2">Projeto Aurora</h1>
+                    <p class="subtitle is-5">Histórico de Análises</p>
+
+                </div>
+
+            </header>
+
+            <main class="section">
+
+                <div class="container">
+
+                    <div class="has-text-centered mb-5">
+
+                        <h2 class="title is-4">Registros realizados</h2>
+                        <p class="subtitle is-6">Consulte as calibrações e amostras registradas no sistema.</p>
+
+                        <a href="index.html" class="button is-link">Voltar para página principal</a>
+                   
+                    </div>
+
+                    <div class="level is-mobile mb-4">
+
+                        <div class="level-left">
+                            <p class="has-text-weight-bold">Total de registros: <span id="totalRegistros">0</span></p>
+                        </div>
+
+                        <div class="level-right">
+                            <button class="button is-link is-light" id="atualizarHistorico">Atualizar histórico</button>
+                        </div>
+
+                    </div>
+
+                    <div class="table-container">
+
+                        <table class="table is-fullwidth is-striped is-hoverable">
+                            
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Tipo</th>
+                                    <th>R</th>
+                                    <th>G</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="corpoHistorico">
+
+                                <tr>
+                                    <td colspan="7" class="has-text-centered">Carregando histórico...</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <p id="mensagemHistorico" class="has-text-centered"></p>
+
+                </div>
+            </main>
+
+        </body>
+</html>
